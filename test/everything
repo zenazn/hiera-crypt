@@ -5,9 +5,19 @@ $:.unshift(File.join(ROOT, 'lib'))
 # This totally counts as a test. Promise!
 
 $reference ||= File.open("#{ROOT}/test/data/data.txt").read
+$reference2 ||= File.open("#{ROOT}/test/data/data2.txt").read
 
-def okay?(hiera)
-  if hiera.lookup('data.txt', 'not found', {'root' => ROOT}) == $reference
+def okay?(key, hiera)
+  if hiera.lookup(key, 'not found', {'root' => ROOT}) == $reference
+    puts "Everything is ponies!"
+  else
+    puts "Everything is broken :("
+    exit 1
+  end
+end
+def a_okay?(key, hiera)
+  out = hiera.lookup(key, 'not found', {'root' => ROOT}, nil, :array)
+  if out == [$reference, $reference2]
     puts "Everything is ponies!"
   else
     puts "Everything is broken :("
@@ -16,5 +26,9 @@ def okay?(hiera)
 end
 
 require 'hiera'
-okay? Hiera.new(:config => "#{ROOT}/test/hiera-inline.yaml")
-okay? Hiera.new(:config => "#{ROOT}/test/hiera-file.yaml")
+okay? 'data.txt', Hiera.new(:config => "#{ROOT}/test/hiera-inline.yaml")
+okay? 'backup.txt', Hiera.new(:config => "#{ROOT}/test/hiera-inline.yaml")
+okay? 'data.txt', Hiera.new(:config => "#{ROOT}/test/hiera-file.yaml")
+okay? 'backup.txt', Hiera.new(:config => "#{ROOT}/test/hiera-file.yaml")
+
+a_okay? 'data.txt', Hiera.new(:config => "#{ROOT}/test/hiera-inline.yaml")
