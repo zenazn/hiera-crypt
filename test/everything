@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+$:.unshift(File.join(ROOT, 'lib'))
+
+# This totally counts as a test. Promise!
+require 'hiera'
+
+hiera = Hiera.new(:config => "#{ROOT}/test/hiera.yaml")
+
+out = hiera.lookup('data.txt', 'not found', {'root' => ROOT})
+ref = File.open("#{ROOT}/test/data/data.txt").read
+
+if out == ref
+  puts "Everything is ponies!"
+else
+  puts "Everything is broken :("
+end
