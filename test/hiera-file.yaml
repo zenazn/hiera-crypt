@@ -1,0 +1,11 @@
+---
+:backends:
+  - crypt
+
+:hierarchy:
+  - one
+  - two
+
+:crypt:
+  :datadir: "%{root}/test/data"
+  :password_file: "%{root}/test/password"
