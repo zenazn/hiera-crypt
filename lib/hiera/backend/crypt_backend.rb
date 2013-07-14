@@ -56,7 +56,18 @@ class Hiera
 
       private
       def decrypt(file)
-        @cache[file] ||= @crypto.decrypt(File.new(file)).to_s
+        stat = File.stat(f = File.new(file))
+        info = {:inode => stat.ino, :mtime => stat.mtime, :size => stat.size}
+        @cache.delete(file) if @cache[file] && @cache[file][:info] != info
+
+        debug("Using cached value for #{file}") if @cache.include?(file)
+
+        @cache[file] ||= {
+          :contents => @crypto.decrypt(f).to_s,
+          :info => info
+        }
+
+        @cache[file][:contents]
       end
 
       def debug(msg)
