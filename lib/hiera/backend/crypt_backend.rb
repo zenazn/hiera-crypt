@@ -29,7 +29,8 @@ class Hiera
 
       def lookup(key, scope, order_override, resolution_type)
         unless [:array, :priority].include?(resolution_type)
-          raise "Unsupported resolution type #{resolution_type.inspect}"
+          debug("Unsupported resolution type #{resolution_type.inspect}")
+          return nil
         end
 
         debug("Looking up #{key}")

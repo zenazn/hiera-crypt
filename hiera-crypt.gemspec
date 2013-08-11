@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "hiera-crypt"
-  spec.version       = "0.2"
+  spec.version       = "0.2.1"
   spec.authors       = ["Carl Jackson"]
   spec.email         = ["carl@avtok.com"]
   spec.description   = "Encrypted file backend for Hiera"
