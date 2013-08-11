@@ -1,3 +1,53 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-exec gpg --symmetric --cipher-algo AES256 "$@"
+require 'optparse'
+require_relative '../lib/passwordbox'
+
+password = nil
+input = '-'
+output = '-'
+mode = :encrypt
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options] [FILE]"
+  opts.on('-f', '--password-file [FILE]', 'Read password from a file') do |f|
+    file_name = File.expand_path(f)
+    password = File.open(file_name, 'r').read.chomp
+  end
+  opts.on('-d', '--decrypt', 'Decrypt instead of encrypting') do |decrypt|
+    mode = :decrypt
+  end
+  opts.on('-o', '--output [FILE]', 'Write result to file instead of stdout') do |f|
+    output = f
+  end
+end.parse!
+
+input = ARGV.first if ARGV.length > 0
+
+def read_password(prompt="Password: ")
+  `stty -echo`
+  STDERR.write(prompt)
+  STDERR.flush
+  STDIN.readline.chomp
+rescue Interrupt
+  exit 1
+ensure
+  STDERR.write("\n")
+  STDERR.flush
+  `stty echo`
+end
+
+password = read_password if password.nil?
+
+crypto = PasswordBox.new(password)
+
+in_file = input == '-' ? STDIN : File.open(input, 'r')
+
+if mode == :encrypt
+  out = crypto.box(in_file.read, :base64)
+elsif mode == :decrypt
+  out = crypto.open(in_file.read, :base64)
+end
+
+out_file = output == '-' ? STDOUT : File.open(output, 'w')
+out_file.write(out)

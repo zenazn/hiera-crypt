@@ -5,7 +5,7 @@ class Hiera
     class Crypt_backend
       DEBUG_PREFIX = '[crypt backend]'
 
-      def initialize()
+      def initialize(cache=nil)
         unless Hiera::Config.include?(:crypt)
           raise "Expected :crypt section in hiera.yaml"
         end
@@ -20,10 +20,10 @@ class Hiera
           raise "Expected either a :password or :password_file"
         end
 
-        @cache = {}
+        @cache = cache || Filecache.new
 
-        require 'gpgme'
-        @crypto = GPGME::Crypto.new(:password => password)
+        require 'passwordbox'
+        @crypto = PasswordBox.new(password)
         debug("Loaded!")
       end
 
@@ -38,11 +38,13 @@ class Hiera
         Backend.datasources(scope, order_override) do |source|
           debug("Looking for data source #{source}")
 
-          file = File.join(Backend.datadir(:crypt, scope), source, "#{key}.gpg")
+          file = File.join(Backend.datadir(:crypt, scope), source, "#{key}.crypt")
           debug("Examining file #{file}")
           next unless File.exist?(file)
 
-          plaintext = decrypt(file)
+          plaintext = @cache.read(file, String) do |data|
+            @crypto.open(data, :base64)
+          end
 
           return plaintext if resolution_type == :priority
 
@@ -53,21 +55,6 @@ class Hiera
       end
 
       private
-      def decrypt(file)
-        stat = File.stat(f = File.new(file))
-        info = {:inode => stat.ino, :mtime => stat.mtime, :size => stat.size}
-        @cache.delete(file) if @cache[file] && @cache[file][:info] != info
-
-        debug("Using cached value for #{file}") if @cache.include?(file)
-
-        @cache[file] ||= {
-          :contents => @crypto.decrypt(f).to_s,
-          :info => info
-        }
-
-        @cache[file][:contents]
-      end
-
       def debug(msg)
         Hiera.debug("#{DEBUG_PREFIX} #{msg}")
       end

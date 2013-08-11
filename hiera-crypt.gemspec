@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "hiera-crypt"
-  spec.version       = "0.1"
+  spec.version       = "0.2"
   spec.authors       = ["Carl Jackson"]
   spec.email         = ["carl@avtok.com"]
   spec.description   = "Encrypted file backend for Hiera"
@@ -19,7 +19,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "hiera", "~> 1.2.1"
-  spec.add_dependency "gpgme", "~> 2.0.2"
+  spec.add_dependency "pbkdf2", "~> 0.1.0"
+  spec.add_dependency "rbnacl", "~> 1.1.0"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
