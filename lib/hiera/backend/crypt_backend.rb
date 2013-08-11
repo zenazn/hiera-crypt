@@ -10,8 +10,6 @@ class Hiera
           raise "Expected :crypt section in hiera.yaml"
         end
         conf = Hiera::Config[:crypt]
-        unless conf.include?(:password) || conf.include?(:password_file)
-        end
         password = if conf.include?(:password)
           conf[:password]
         elsif conf.include?(:password_file)
