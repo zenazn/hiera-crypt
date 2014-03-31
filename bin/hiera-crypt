@@ -44,9 +44,9 @@ crypto = PasswordBox.new(password)
 in_file = input == '-' ? STDIN : File.open(input, 'r')
 
 if mode == :encrypt
-  out = crypto.box(in_file.read, :base64)
+  out = crypto.box(in_file.read)
 elsif mode == :decrypt
-  out = crypto.open(in_file.read, :base64)
+  out = crypto.open(in_file.read)
 end
 
 out_file = output == '-' ? STDOUT : File.open(output, 'w')

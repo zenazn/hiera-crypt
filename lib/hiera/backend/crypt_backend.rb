@@ -44,7 +44,7 @@ class Hiera
           next unless File.exist?(file)
 
           plaintext = @cache.read(file, String) do |data|
-            @crypto.open(data, :base64)
+            @crypto.open(data)
           end
 
           return plaintext if resolution_type == :priority
